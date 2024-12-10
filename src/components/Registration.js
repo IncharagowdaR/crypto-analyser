@@ -2,8 +2,14 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { auth, db } from "../firebase";
 import { createUserWithEmailAndPassword } from "firebase/auth";
-import { collection, setDoc, addDoc, doc, getDoc, getDocs } from "firebase/firestore";
-
+import {
+  collection,
+  setDoc,
+  addDoc,
+  doc,
+  getDoc,
+  getDocs,
+} from "firebase/firestore";
 
 export default function Registration() {
   const [email, setEmail] = useState("");
@@ -17,7 +23,7 @@ export default function Registration() {
       setError("Passwords do not match");
       return;
     }
-    
+
     const userDoc = doc(db, "users", email);
     const docSnap = await getDoc(userDoc);
     if (docSnap.exists()) {

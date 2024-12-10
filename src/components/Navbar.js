@@ -1,25 +1,29 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { Dialog, DialogPanel } from "@headlessui/react";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import { auth } from "../firebase";
 import { Link } from "react-router-dom";
+import { UserContext } from '../UserContext';
+import { useNavigate } from "react-router-dom";
 
 const navigation = [
   { name: "Product", href: "#" },
-  { name: "Features", href: "#" },
-  { name: "Marketplace", href: "#" },
+  { name: "Marketplace", href: "/market" },
+  { name: "Protfolio", href: "/protfolio" },
   { name: "Company", href: "#" },
 ];
 
 export default function Navbar() {
-  const [user, setUser] = useState(null);
+  const { user, setUser } = useContext(UserContext);
+  const [userDetails, setUserDetails] = useState(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const navigate = useNavigate();
 
   // Listen for auth state changes
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
+      setUserDetails(currentUser);
     });
     return () => unsubscribe(); // Cleanup listener on component unmount
   }, []);
@@ -28,7 +32,9 @@ export default function Navbar() {
   const handleLogout = async () => {
     try {
       await signOut(auth);
+      setUser({ isLoggedIn: false, email: '' });
       console.log("User logged out");
+      navigate("/");
     } catch (error) {
       console.error("Error logging out:", error);
     }
@@ -72,9 +78,9 @@ export default function Navbar() {
           ))}
         </div>
         <div className="hidden lg:flex lg:flex-1 lg:justify-end">
-          {user ? (
+          {userDetails ? (
             <div>
-              <p className="text-white">{user.email}</p>
+              <p className="text-white">{userDetails.email}</p>
               <button
                 onClick={handleLogout}
                 className="text-red-500 text-sm/6 font-semibold"

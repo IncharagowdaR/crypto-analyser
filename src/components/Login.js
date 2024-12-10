@@ -1,11 +1,12 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 import { Link } from 'react-router-dom'
 import { auth } from "../firebase";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
-
+import { UserContext } from '../UserContext';
 
 export default function Login() {
+  const { user, setUser } = useContext(UserContext);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -15,7 +16,10 @@ export default function Login() {
     e.preventDefault();
 
     try {
+      console.log("email", email);
+      
       await signInWithEmailAndPassword(auth, email, password);
+      setUser({ isLoggedIn: true, email: email });
       console.log("User logged in");
       navigate("/market");
     } catch (err) {
