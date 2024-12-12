@@ -24,12 +24,12 @@ ChartJS.register(
   Legend
 );
 
-const TokenChart = ({ chartData }) => {
+const TokenChart = ({ chartData }) => { // 3rd api respose
   return (
     <div>
       <div className="pt-6 w-full h-[400px] text-white">
-        <Line 
-          data={chartData} 
+        <Line //line graph
+          data={chartData} //data to line graph
           backgroundColor="rgba(0, 0, 0, 0.1)"
         />
       </div>

@@ -77,7 +77,7 @@ export default function Market() {
     setCurrentPage(pageNumber);
   };
 
-  const fetchCoinChart = async (cryptoSymbol) => {
+  const fetchCoinChart = async (cryptoSymbol) => {//view more feature
     try {
       const response = await axios.get(
         `http://localhost:5001/api/crypto/${cryptoSymbol}`
@@ -102,7 +102,7 @@ export default function Market() {
             fill: true,
           },
         ],
-      });
+      });// local state - react(use state) - data to token chart 
     } catch (err) {
       console.error("Error fetching data");
       const chartData = ChartData;

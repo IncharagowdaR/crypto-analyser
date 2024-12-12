@@ -40,7 +40,7 @@ export default function Registration() {
         email,
         password
       );
-      await setDoc(userDoc, { email, password: btoa(password) }); // Store encrypted password
+      await setDoc(userDoc, { email, password: btoa(password) }); // Store encrypted password//inbuilt function -javascript
       await setDoc(doc(db, "usersData", email), {
         email,
         username,

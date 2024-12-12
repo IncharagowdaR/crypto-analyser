@@ -1,7 +1,7 @@
 const express = require("express");
 const axios = require("axios");
 const cors = require("cors");
-const app = express();
+const app = express(); //all app functionility runs through express.js//get request
 
 // Middleware
 app.use(cors());
@@ -28,14 +28,15 @@ app.get("/api/cryptocurrency/map", async (req, res) => {
 
 
 // Route to handle requests to CoinMarketCap API
-app.get("/api/cryptocurrency/info", async (req, res) => {
+//https://coinmarketcap.com/api/documentation/v1/#operation/getV2CryptocurrencyInfo
+app.get("/api/cryptocurrency/info", async (req, res) => {//creatin api structure(get)
   const { name } = req.query;
   try {
     const response = await axios.get(
-      "https://pro-api.coinmarketcap.com/v2/cryptocurrency/info",
+      "https://pro-api.coinmarketcap.com/v2/cryptocurrency/info",// gives complete data of indiviual coin
       {
         headers: {
-          "X-CMC_PRO_API_KEY": "3e483ec3-583b-4841-80c0-909e848aa181", // Replace with your API key
+          "X-CMC_PRO_API_KEY": "3e483ec3-583b-4841-80c0-909e848aa181", // key call
         },
         params: { slug: name },
       }
@@ -46,12 +47,13 @@ app.get("/api/cryptocurrency/info", async (req, res) => {
   }
 });
 
-app.get('/api/crypto/:cryptoSymbol', async (req, res) => {
+//coingecko
+app.get('/api/crypto/:cryptoSymbol', async (req, res) => {//calling in url 
     const { cryptoSymbol } = req.params;
     try {
       const response = await axios.get(`https://api.coingecko.com/api/v3/coins/${cryptoSymbol}/market_chart`, {
         params: {
-          vs_currency: 'usd', // Get price in USD
+          vs_currency: 'usd', // Get price in USD, gives historical prices inside array
           days: '7', // Last 7 days of data
         },
       });
@@ -66,6 +68,6 @@ app.get('/api/crypto/:cryptoSymbol', async (req, res) => {
 
 // Start the server
 const PORT = 5001;
-app.listen(PORT, () => {
+app.listen(PORT, () => {//check running in same port mentioned
   console.log(`Server is running on http://localhost:${PORT}`);
 });
