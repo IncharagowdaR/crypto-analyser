@@ -27,7 +27,6 @@ ChartJS.register(
 const TokenChart = ({ chartData }) => {
   return (
     <div>
-      {/* <h2>{cryptoSymbol.toUpperCase()} Market Price (Last 7 Days)</h2> */}
       <div className="pt-6 w-full h-[400px] text-white">
         <Line 
           data={chartData} 

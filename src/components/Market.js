@@ -6,6 +6,7 @@ import ChartData from "../utils/chart.json";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import { UserContext } from "../UserContext";
 import { doc, setDoc, getDoc, updateDoc } from "firebase/firestore";
+import { useNavigate } from "react-router-dom";
 import { db } from "../firebase";
 
 export default function Market() {
@@ -16,9 +17,18 @@ export default function Market() {
   const [data, setData] = useState([]); // Holds fetched data
   const [currentPage, setCurrentPage] = useState(1); // Current page
   const [fetchState, setFetchState] = useState(false);
-  const [message, setMessage] = useState("")
+  const [message, setMessage] = useState("");
   const [isSuccess, setIsSuccess] = useState(false);
+  const navigate = useNavigate();
   const itemsPerPage = 10; // Items per page
+
+  useEffect(() => {
+    if (user.isLoggedIn == false) {
+      navigate("/");
+    } if(user.role === "admin") {
+      navigate("/");
+    }
+  }, [user]);
 
   const fetchCoinData = async (slug, id) => {
     try {
@@ -36,7 +46,6 @@ export default function Market() {
       console.error("Error fetching data:", error);
     }
   };
-
 
   // Fetch data from API
   useEffect(() => {
@@ -88,8 +97,8 @@ export default function Market() {
             label: `${cryptoSymbol.toUpperCase()} Price (USD)`,
             data: priceData,
             color: "#000",
-            bordercolor: "rgba(77, 162, 124, 1)",
-            backgroundcolor: "rgba(77, 162, 124, 1)",
+            borderColor: "rgba(77, 162, 124, 1)",
+            backgroundColor: "rgba(77, 162, 124, 1)",
             fill: true,
           },
         ],
@@ -119,12 +128,13 @@ export default function Market() {
   };
 
   const saveUserData = async (email, portfolio) => {
-    const username = email.split('@')[0];
+    const username = email.split("@")[0];
     try {
       await setDoc(doc(db, "usersData", email), {
         email,
         username,
         portfolio: [portfolio],
+        blocked: false
       });
       console.log("User data saved successfully.");
     } catch (error) {
@@ -139,19 +149,19 @@ export default function Market() {
       const userDoc = await getDoc(docRef);
       if (userDoc.exists()) {
         const existingPortfolio = userDoc.data().portfolio || [];
-        const updatedPortfolio = existingPortfolio.filter(item => item.name === token.name);
-        console.log("updatedPortfolio", updatedPortfolio);
-        
-        if(!updatedPortfolio.length) {
+        const updatedPortfolio = existingPortfolio.filter(
+          (item) => item.name === token.name
+        );
+        if (!updatedPortfolio.length) {
           const updatedPortfolio = [...existingPortfolio, token];
           await updateDoc(docRef, {
             portfolio: updatedPortfolio,
           });
-          setMessage('Token added successfully!');
+          setMessage("Token added successfully!");
           setIsSuccess(true);
           console.log("Token added to portfolio.");
         } else {
-          setMessage('Token already exists!');
+          setMessage("Token already exists!");
           setIsSuccess(true);
           console.log("dont update");
         }
@@ -164,52 +174,57 @@ export default function Market() {
   };
 
   const handlePortfolio = async (email) => {
-    const address = tokenData.contract_address.length === 0 ? "0x0000000000000000000000000000000000000000": tokenData.contract_address[0].contract_address
+    const address =
+      tokenData.contract_address.length === 0
+        ? "0x0000000000000000000000000000000000000000"
+        : tokenData.contract_address[0].contract_address;
     const tokenDeatils = {
       id: tokenData.id,
       name: tokenData.name,
       symbol: tokenData.symbol,
       logo: tokenData.logo,
       date: tokenData.date_added,
-      contractAddress: address
-    }
-    if(fetchState) {
+      contractAddress: address,
+    };
+    if (fetchState) {
       const userDoc = doc(db, "usersData", email);
       const docSnap = await getDoc(userDoc);
       if (docSnap.exists()) {
         addTokenToPortfolio(email, tokenDeatils);
       } else {
-        saveUserData(email, tokenDeatils)
+        saveUserData(email, tokenDeatils);
       }
     }
     setFetchState(false);
-  }
+  };
 
   useEffect(() => {
-    if(fetchState) {
+    if (fetchState) {
       if (tokenData) {
-        handlePortfolio(user.email); 
+        handlePortfolio(user.email);
       }
     }
-  }, [tokenData, fetchState]); 
-  console.log("message", message);
-  
+  }, [tokenData, fetchState]);
 
   return (
     <div className="bg-gray-900 mt-24 py-10 mx-20">
-      <h2 className="px-4 text-base/7 font-semibold text-white sm:px-6 lg:px-8">
-        Latest activity {user.email}
-      </h2>
+      <p className="px-4 text-base/7 text-white sm:px-6 lg:px-8">
+        Latest activity:{" "}
+        <span className="text-lg font-semibold">
+          {user.email}
+        </span>
+      </p>
       {isSuccess && (
-        <div
-          className="fixed top-80 w-[400px] h-[130px] left-1/2 transform -translate-x-1/2 bg-gray-800 text-white p-4 rounded-lg shadow-lg transition-all duration-300"
-          style={{ animation: 'fadeIn 0.5s ease, fadeOut 0.5s ease 2.5s' }}
-        >
+        <div className="fixed top-80 w-[400px] h-[130px] left-1/2 transform -translate-x-1/2 bg-gray-800 text-white p-4 rounded-lg shadow-lg transition-all duration-300">
           <div className="flex justify-end">
-            <button className="text-lg text-gray-300" onClick={() => setIsSuccess(false)}>X</button>
+            <button
+              className="text-lg text-gray-300"
+              onClick={() => setIsSuccess(false)}
+            >
+              X
+            </button>
           </div>
           <p className="flex justify-center mt-4">{message}</p>
-          
         </div>
       )}
       <Dialog open={open} onClose={setOpen} className="relative z-10">
@@ -378,7 +393,7 @@ export default function Market() {
                   <button
                     onClick={() => {
                       fetchCoinData(item.slug, item.id);
-                      setFetchState(true)
+                      setFetchState(true);
                     }}
                     className="hidden text-white sm:block"
                   >

@@ -7,7 +7,7 @@ export const UserProvider = ({ children }) => {
   const [user, setUser] = useState(() => {
     // Initialize state from localStorage if available
     const savedUser = localStorage.getItem('user');
-    return savedUser ? JSON.parse(savedUser) : { isLoggedIn: false, email: '' };
+    return savedUser ? JSON.parse(savedUser) : { isLoggedIn: false, email: '', role:'' };
   });
 
   // Sync state changes to localStorage

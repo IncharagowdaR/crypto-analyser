@@ -8,10 +8,10 @@ import { UserContext } from '../UserContext';
 import { useNavigate } from "react-router-dom";
 
 const navigation = [
-  { name: "Product", href: "#" },
+  { name: "Company", href: "/" },
   { name: "Marketplace", href: "/market" },
   { name: "Protfolio", href: "/protfolio" },
-  { name: "Company", href: "#" },
+  { name: "Admin", href: "/admin" },
 ];
 
 export default function Navbar() {
@@ -32,7 +32,7 @@ export default function Navbar() {
   const handleLogout = async () => {
     try {
       await signOut(auth);
-      setUser({ isLoggedIn: false, email: '' });
+      setUser({ isLoggedIn: false, email: '', role:'' });
       console.log("User logged out");
       navigate("/");
     } catch (error) {
@@ -78,9 +78,9 @@ export default function Navbar() {
           ))}
         </div>
         <div className="hidden lg:flex lg:flex-1 lg:justify-end">
-          {userDetails ? (
+          {user.isLoggedIn ? (
             <div>
-              <p className="text-white">{userDetails.email}</p>
+              <p className="text-white">{user.email}</p>
               <button
                 onClick={handleLogout}
                 className="text-red-500 text-sm/6 font-semibold"

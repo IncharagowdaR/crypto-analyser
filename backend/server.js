@@ -7,23 +7,25 @@ const app = express();
 app.use(cors());
 app.use(express.json()); // For parsing JSON payloads
 
-// Route to handle requests to CoinMarketCap API
+//fetch 50 market data - market page from coinmarket cap
+//https://coinmarketcap.com/api/documentation/v1/#operation/getV1CryptocurrencyMap
 app.get("/api/cryptocurrency/map", async (req, res) => {
   try {
     const response = await axios.get(
       "https://pro-api.coinmarketcap.com/v1/cryptocurrency/map",
       {
         headers: {
-          "X-CMC_PRO_API_KEY": "3e483ec3-583b-4841-80c0-909e848aa181", // Replace with your API key
+          "X-CMC_PRO_API_KEY": "3e483ec3-583b-4841-80c0-909e848aa181", // sending my request API Key
         },
-        params: { limit: 50 },
+        params: { limit: 50 },//limit 50 data
       }
     );
     res.json(response.data);
   } catch (error) {
     res.status(500).json({ error: "Failed to fetch data" });
   }
-});
+});//error handling ,try - the code runs n sends response if fails will go to catch and give error message
+
 
 // Route to handle requests to CoinMarketCap API
 app.get("/api/cryptocurrency/info", async (req, res) => {

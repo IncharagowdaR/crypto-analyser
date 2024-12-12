@@ -1,7 +1,7 @@
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { auth } from "../firebase";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { onAuthStateChanged, signOut } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
 import { UserContext } from "../UserContext";
 import {
@@ -23,27 +23,42 @@ export default function Login() {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    const docRef = doc(db, "usersData", email); // 'users' is the collection name
-    const docSnap = await getDoc(docRef);
-    if (docSnap.exists()) {
-      const userData = docSnap.data();
-      if (userData.blocked == true) {
-        setError("You have been blocked please contact admin");
-      } else {
-        try {
-          await signInWithEmailAndPassword(auth, email, password);
-          setUser({ isLoggedIn: true, email: email, role:'user' });
-          console.log("User logged in");
-          navigate("/market");
-        } catch (err) {
-          setError("Incorrect email or password");
+    try {
+        const docRef = doc(db, "admin", email); 
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+            const data = docSnap.data()
+            if(data.email === email && data.password === password) {
+                setUser({ isLoggedIn: true, email: email, role: "admin" });
+                console.log("User logged in");
+                navigate("/admin");
+            } else {
+                setError("Incorrect email or password");
+            }     
+        } else {
+            setError("Admin does not exist");
         }
+      } catch (err) {
+        setError("Incorrect email or password");
       }
-    } else {
-      setError("User not found, please register");
-      setTimeout(() => navigate("/register"), 3000);
+  };
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      setUser({ isLoggedIn: false, email: '', role:'' });
+      console.log("User logged out");
+      navigate("/admin-login");
+    } catch (error) {
+      console.error("Error logging out:", error);
     }
   };
+
+  useEffect(() => {
+    if(user.isLoggedIn && user.role === "user"){
+        handleLogout()
+    }
+  }, [])
 
   return (
     <>
@@ -55,7 +70,7 @@ export default function Login() {
             className="mx-auto h-10 w-auto"
           />
           <h2 className="mt-10 text-center text-2xl/9 font-bold tracking-tight text-white">
-            Sign in to your account
+            Sign in to your admin account
           </h2>
         </div>
 
@@ -121,16 +136,6 @@ export default function Login() {
               </button>
             </div>
           </div>
-
-          <p className="mt-10 text-center text-sm/6 text-gray-400">
-            Not a member?{" "}
-            <Link
-              to="/register"
-              className="font-semibold text-indigo-400 hover:text-indigo-300"
-            >
-              Start new registration
-            </Link>
-          </p>
         </div>
       </div>
     </>

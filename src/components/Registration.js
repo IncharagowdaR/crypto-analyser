@@ -10,8 +10,10 @@ import {
   getDoc,
   getDocs,
 } from "firebase/firestore";
+import { useNavigate } from "react-router-dom";
 
 export default function Registration() {
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -32,13 +34,21 @@ export default function Registration() {
     }
 
     try {
+      const username = email.split("@")[0];
       const userCredential = await createUserWithEmailAndPassword(
         auth,
         email,
         password
       );
       await setDoc(userDoc, { email, password: btoa(password) }); // Store encrypted password
-      console.log("User registered:", userCredential);
+      await setDoc(doc(db, "usersData", email), {
+        email,
+        username,
+        portfolio: [],
+        blocked: false
+      });
+      console.log("User registered");
+      navigate("/login");
     } catch (err) {
       setError(err.message);
     }
@@ -56,7 +66,7 @@ export default function Registration() {
             Register account
           </h2>
         </div>
-        {error && <p className="text-red-500">{error}</p>}
+        
         <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
           <div className="space-y-6">
             <div>
@@ -75,7 +85,7 @@ export default function Registration() {
                   value={email}
                   required
                   onChange={(e) => setEmail(e.target.value)}
-                  className="block w-full rounded-md border-0 bg-white/5 py-1.5 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-indigo-500 sm:text-sm/6"
+                  className="block w-full rounded-md border-0 bg-white/5 px-2 py-1.5 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-indigo-500 sm:text-sm/6"
                 />
               </div>
             </div>
@@ -98,7 +108,7 @@ export default function Registration() {
                   placeholder="Password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="block w-full rounded-md border-0 bg-white/5 py-1.5 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-indigo-500 sm:text-sm/6"
+                  className="block w-full rounded-md border-0 bg-white/5 px-2 py-1.5 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-indigo-500 sm:text-sm/6"
                 />
               </div>
             </div>
@@ -121,11 +131,11 @@ export default function Registration() {
                   placeholder="Confirm Password"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="block w-full rounded-md border-0 bg-white/5 py-1.5 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-indigo-500 sm:text-sm/6"
+                  className="block w-full rounded-md border-0 bg-white/5 px-2 py-1.5 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-indigo-500 sm:text-sm/6"
                 />
               </div>
             </div>
-
+            {error && <p className="text-red-500">{error}</p>}
             <div>
               <button
                 type="submit"
